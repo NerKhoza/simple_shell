@@ -1,62 +1,69 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#define MAX_COMMAND_LENGTH 100
+int main(void) {
+    char *command;
+    size_t len = 0;
 
-int main() {
     while (1) {
         // Display prompt
-        write(STDOUT_FILENO, "simple_shell> ", 14);
+        write(STDOUT_FILENO, "$ ", 2);
 
         // Read command from user
-        char *command = NULL;
-        size_t len = 0;
-        ssize_t read = getline(&command, &len, stdin);
-
-        // Handle end of file (Ctrl+D)
-        if (read == -1) {
-            free(command);
-            break;
+        if (getline(&command, &len, stdin) == -1) {
+            if (feof(stdin)) {
+                // Handle end of file (Ctrl+D)
+                write(STDOUT_FILENO, "\n", 1);
+                free(command);
+                exit(EXIT_SUCCESS);
+            } else {
+                // Handle other errors
+                perror("getline");
+                free(command);
+                exit(EXIT_FAILURE);
+            }
         }
 
-        // Remove the newline character
-        if (command[read - 1] == '\n') {
-            command[read - 1] = '\0';
-        }
+        // Remove newline character from the end
+        command[strlen(command) - 1] = '\0';
 
-        // Fork to create a new process
+        // Fork a child process
         pid_t pid = fork();
 
         if (pid == -1) {
-            perror("Fork error");
+            // Handle fork error
+            perror("fork");
+            free(command);
             exit(EXIT_FAILURE);
         }
 
         if (pid == 0) {
             // Child process
-            char *token = strtok(command, " ");
-            execve(token, &token, NULL);
+            char *argv[] = {command, NULL};
 
-            // If execve fails
-            perror("Command not found");
-            exit(EXIT_FAILURE);
+            // Execute the command
+            if (execve(command, argv, NULL) == -1) {
+                // Handle execution error
+                perror("execve");
+
+                // Exit child process
+                free(command);
+                _exit(EXIT_FAILURE);
+            }
         } else {
             // Parent process
             int status;
             waitpid(pid, &status, 0);
 
-            // Check for errors in child process
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-                write(STDOUT_FILENO, "Error executing command\n", 24);
+            // Check if executable was not found
+            if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+                write(STDERR_FILENO, "Command not found\n", 18);
             }
         }
-
-        // Free allocated memory
-        free(command);
     }
 
     return 0;
