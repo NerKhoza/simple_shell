@@ -7,7 +7,13 @@
 
 #define MAX_INPUT_SIZE 1024
 
-int main()
+/**
+ * main - main function
+ *
+ * Return: 0
+ */
+
+int main(void)
 {
 	char input[MAX_INPUT_SIZE];
 	size_t len;
@@ -16,7 +22,7 @@ int main()
 	int status;
 	int i = 0;
 
-	while(1)
+	while (1)
 	{
 		write(STDOUT_FILENO, ":) ", 3);
 
@@ -27,7 +33,7 @@ int main()
 		}
 
 		len = strlen(input);
-		if (len > 0 && input [len - 1] == '\n')
+		if (len > 0 && input[len - 1] == '\n')
 		{
 			input[len - 1] = '\0';
 		}
