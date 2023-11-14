@@ -1,67 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-int main(void) {
-    char *command;
-    size_t len = 0;
+#define MAX_INPUT_SIZE 1024
+
+int main() {
+    char input[MAX_INPUT_SIZE];
 
     while (1) {
         // Display prompt
         write(STDOUT_FILENO, "$ ", 2);
 
-        // Read command from user
-        if (getline(&command, &len, stdin) == -1) {
-            if (feof(stdin)) {
-                // Handle end of file (Ctrl+D)
-                write(STDOUT_FILENO, "\n", 1);
-                free(command);
-                exit(EXIT_SUCCESS);
-            } else {
-                // Handle other errors
-                perror("getline");
-                free(command);
-                exit(EXIT_FAILURE);
-            }
+        // Read user input
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            // Handle end of file (Ctrl+D)
+            write(STDOUT_FILENO, "\n", 1);
+            break;
         }
 
-        // Remove newline character from the end
-        command[strlen(command) - 1] = '\0';
+        // Remove newline character
+        size_t len = strlen(input);
+        if (len > 0 && input[len - 1] == '\n') {
+            input[len - 1] = '\0';
+        }
 
         // Fork a child process
         pid_t pid = fork();
 
         if (pid == -1) {
-            // Handle fork error
             perror("fork");
-            free(command);
             exit(EXIT_FAILURE);
-        }
-
-        if (pid == 0) {
+        } else if (pid == 0) {
             // Child process
-            char *argv[] = {command, NULL};
+            // Execute the command using execve
+
+            // Split the command and arguments
+            char *token = strtok(input, " ");
+            char *args[MAX_INPUT_SIZE];
+            int i = 0;
+
+            while (token != NULL) {
+                args[i++] = token;
+                token = strtok(NULL, " ");
+            }
+
+            args[i] = NULL; // Null-terminate the argument list
 
             // Execute the command
-            if (execve(command, argv, NULL) == -1) {
-                // Handle execution error
-                perror("execve");
+            execvp(args[0], args);
 
-                // Exit child process
-                free(command);
-                _exit(EXIT_FAILURE);
-            }
+            // If execvp fails, print an error message
+            perror("execvp");
+            exit(EXIT_FAILURE);
         } else {
             // Parent process
             int status;
-            waitpid(pid, &status, 0);
+            // Wait for the child process to complete
+            if (waitpid(pid, &status, 0) == -1) {
+                perror("waitpid");
+                exit(EXIT_FAILURE);
+            }
 
-            // Check if executable was not found
-            if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
-                write(STDERR_FILENO, "Command not found\n", 18);
+            // Check if the child process exited successfully
+            if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+                // Print an error message if the command was not found
+                write(STDOUT_FILENO, "Command not found\n", 18);
             }
         }
     }
