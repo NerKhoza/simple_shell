@@ -1,13 +1,38 @@
-#include <stdio.h>
+#include <unistd.h>
 
 /**
- * main - main function It prints "Hello, Betty!" 
- * to the standard output
- * Return: 0 on Success
+ * my_putchar - that prints a character
+ * @c: function parameter
  */
+
+void my_putchar(char c)
+{
+	write(1, &c, 1);
+}
+
+/**
+ * my_puts - function that handles a string
+ * @str: function parameter
+ */
+
+void my_puts(char *str)
+{
+	while (*str)
+	{
+		my_putchar(*str);
+		str++;
+	}
+}
+
+/**
+ * main - main function
+ */
+
 int main(void)
 {
-	printf("Hello, Betty!\n");
+	char message[] = "Hello, Betty!";
+
+	my_puts(message);
 
 	return (0);
 }
