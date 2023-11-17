@@ -1,77 +1,154 @@
-#include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
+#include "shell.h"
 
 /**
- * main - main function
- *
- * Return: 0
+ * hsh - function uses a loop to continuously read user input
+ * input and process commands until an error occurs or the user exits
+ * @info: parameter 1
+ * @av: parameter 2
+ * Return: 0, 1 and error
  */
 
-int main(void)
+int hsh(info_t *info, char **av)
 {
-	pid_t pid;
-	char *command;
-	size_t len;
-	int status;
+	ssize_t x = 0;
+	int builtin_ret = 0;
 
-	len = 0;
-
-	while (1)
+	while (x != -1 && builtin_ret != -2)
 	{
-		write(STDOUT_FILENO, "#cisfun$ ", 9);
-
-		if (getline(&command, &len, stdin) == -1)
+		clear_info(info);
+		if (interactive(info))
+			_puts("$ ");
+		_eputchar(BUF_FLUSH);
+		x = get_input(info);
+		if (x != -1)
 		{
-			if (feof(stdin))
-			{
-				write(STDOUT_FILENO, "", 1);
-				free(command);
-				exit(EXIT_SUCCESS);
-			}
-			else
-			{
-				perror("getline");
-				free(command);
-				exit(EXIT_FAILURE);
-			}
+			set_info(info, av);
+			builtin_ret = find_builtin(info);
+			if (builtin_ret == -1)
+				find_cmd(info);
 		}
+		else if (interactive(info))
+			_putchar('\n');
+		free_info(info, 0);
+	}
+	write_history(info);
+	free_info(info, 1);
+	if (!interactive(info) && info->status)
+		exit(info->status);
+	if (builtin_ret == -2)
+	{
+		if (info->err_num == -1)
+			exit(info->status);
+		exit(info->err_num);
+	}
+	return (builtin_ret);
+}
 
-		command[strlen(command) - 1] = '\0';
+/**
+ * find_builtin - a function that finds a built in command
+ * @info: function parameter
+ * Return: -1, 0, 1 and -2
+ */
 
-		pid = fork();
+int find_builtin(info_t *info)
+{
+	int i, built_in_ret = -1;
+	builtin_table builtintbl[] = {
+		{"exit", _myexit},
+		{"env", _myenv},
+		{"help", _myhelp},
+		{"history", _myhistory},
+		{"setenv", _mysetenv},
+		{"unsetenv", _myunsetenv},
+		{"cd", _mycd},
+		{"alias", _myalias},
+		{NULL, NULL}
+	};
 
-		if (pid == -1)
+	for (i = 0; builtintbl[i].type; i++)
+		if (_strcmp(info->argv[0], builtintbl[i].type) == 0)
 		{
-			perror("fork");
-			free(command);
-			exit(EXIT_FAILURE);
+			info->line_count++;
+			built_in_ret = builtintbl[i].func(info);
+			break;
 		}
+	return (built_in_ret);
+}
 
-		if (pid == 0)
+/**
+ * find_cmd - a function that finds a command
+ * @info: function parameter
+ */
+
+void find_cmd(info_t *info)
+{
+	char *path = NULL;
+	int z, i;
+
+	info->path = info->argv[0];
+	if (info->linecount_flag == 1)
+	{
+		info->line_count++;
+		info->linecount_flag = 0;
+	}
+	for (z = 0, i = 0; info->arg[z]; z++)
+		if (!is_delim(info->arg[z], " \t\n"))
+			i++;
+	if (!i)
+		return;
+
+	path = find_path(info, _getenv(info, "PATH="), info->argv[0]);
+	if (path)
+	{
+		info->path = path;
+		fork_cmd(info);
+	}
+	else
+	{
+		if ((interactive(info) || _getenv(info, "PATH=")
+			|| info->argv[0][0] == '/') && is_cmd(info, info->argv[0]))
+			fork_cmd(info);
+		else if (*(info->arg) != '\n')
 		{
-		char *argv[] = {command, NULL};
-
-			if (execve(command, argv, NULL) == -1)
-			{
-				perror("./shell");
-
-				free(command);
-				_exit(EXIT_FAILURE);
-			}
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-
-			if (WIFEXITED(status) && WEXITSTATUS(status) == 127)
-			{
-				write(STDERR_FILENO, "command not found\n", 18);
-			}
+			info->status = 127;
+			print_error(info, "not found\n");
 		}
 	}
-	return (0);
+}
+
+/**
+ * fork_cmd - a function that forks a command
+ * @info: function parameter
+ */
+
+void fork_cmd(info_t *info)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("Error:");
+		return;
+	}
+	if (pid == 0)
+	{
+		if (execve(info->path, info->argv, get_environ(info)) == -1)
+		{
+			free_info(info, 1);
+			if (errno == EACCES)
+				exit(126);
+			exit(1);
+		}
+	}
+	else
+	{
+		wait(&(info->status));
+		if (WIFEXITED(info->status))
+		{
+			info->status = WEXITSTATUS(info->status);
+			if (info->status == 126)
+				print_error(info, "Permission denied\n");
+		}
+	}
 }
