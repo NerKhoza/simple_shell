@@ -1,11 +1,10 @@
 #include "shell.h"
 
 /**
- * hsh - main shell loop.
- * @info: the parameter & return info struct.
- * @av: the argument vector from main()
- *
- * Return: 0 on success, 1 on error, or error code.
+ * hsh - main shell loop
+ * @info: parameter 1
+ * @av: parameter 2
+ * Return: 0 or 1
  */
 int hsh(info_t *info, char **av)
 {
@@ -44,17 +43,13 @@ int hsh(info_t *info, char **av)
 }
 
 /**
- * find_builtin - finds a builtin command.
- * @info: the parameter & return info struct.
- *
- * Return: -1 if builtin not found.
- * 0 if builtin executed successfully.
- * 1 if builtin found but not successful.
- * -2 if builtin signals exit()
+ * find_builtin - a function that inds a builtin command
+ * @info: function parameter
+ * Return: -2, -1, 0 and 1
  */
 int find_builtin(info_t *info)
 {
-	int i, built_in_ret = -1;
+	int x, built_in_ret = -1;
 	builtin_table builtintbl[] = {
 		{"exit", _myexit},
 		{"env", _myenv},
@@ -67,26 +62,25 @@ int find_builtin(info_t *info)
 		{NULL, NULL}
 	};
 
-	for (i = 0; builtintbl[i].type; i++)
-		if (_strcmp(info->argv[0], builtintbl[i].type) == 0)
+	for (x = 0; builtintbl[x].type; x++)
+		if (_strcmp(info->argv[0], builtintbl[x].type) == 0)
 		{
 			info->line_count++;
-			built_in_ret = builtintbl[i].func(info);
+			built_in_ret = builtintbl[x].func(info);
 			break;
 		}
 	return (built_in_ret);
 }
 
 /**
- * find_cmd - finds a command in PATH.
- * @info: the parameter & return info struct.
- *
+ * find_cmd - a function that finds a command in PATH
+ * @info: function parameter
  * Return: void
  */
 void find_cmd(info_t *info)
 {
 	char *path = NULL;
-	int i, k;
+	int x, k;
 
 	info->path = info->argv[0];
 	if (info->linecount_flag == 1)
@@ -94,8 +88,8 @@ void find_cmd(info_t *info)
 		info->line_count++;
 		info->linecount_flag = 0;
 	}
-	for (i = 0, k = 0; info->arg[i]; i++)
-		if (!is_delim(info->arg[i], " \t\n"))
+	for (x = 0, k = 0; info->arg[x]; x++)
+		if (!is_delim(info->arg[x], " \t\n"))
 			k++;
 	if (!k)
 		return;
@@ -120,7 +114,7 @@ void find_cmd(info_t *info)
 }
 
 /**
- * fork_cmd - a function that forks  an exec thread to run cmd.
+ * fork_cmd - a function that forks a an exec thread to run cmd
  * @info: function parameter
  * Return: void
  */
@@ -155,4 +149,3 @@ void fork_cmd(info_t *info)
 		}
 	}
 }
-
