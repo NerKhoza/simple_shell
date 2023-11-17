@@ -152,7 +152,7 @@ int _getline(info_t *info, char **ptr, size_t *length)
 
 /**
  * sigintHandler - a function blocks ctrl-C.
- * @sig_num: function parameter 
+ * @sig_num: function parameter
  * Return: void.
  */
 void sigintHandler(__attribute__((unused))int sig_num)
