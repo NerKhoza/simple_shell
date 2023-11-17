@@ -120,23 +120,21 @@ void find_cmd(info_t *info)
 }
 
 /**
- * fork_cmd - forks  an exec thread to run cmd.
- * @info: the parameter & return info struct.
- *
+ * fork_cmd - a function that forks  an exec thread to run cmd.
+ * @info: function parameter
  * Return: void
  */
 void fork_cmd(info_t *info)
 {
-	pid_t child_pid;
+	pid_t pid;
 
-	child_pid = fork();
-	if (child_pid == -1)
+	pid = fork();
+	if (pid == -1)
 	{
-		/* TODO: PUT ERROR FUNCTION */
 		perror("Error:");
 		return;
 	}
-	if (child_pid == 0)
+	if (pid == 0)
 	{
 		if (execve(info->path, info->argv, get_environ(info)) == -1)
 		{
@@ -145,7 +143,6 @@ void fork_cmd(info_t *info)
 				exit(126);
 			exit(1);
 		}
-		/* TODO: PUT ERROR FUNCTION */
 	}
 	else
 	{

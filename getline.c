@@ -1,11 +1,11 @@
 #include "shell.h"
 
 /**
- * input_buf - a function that buffers chained to the commands.
+ * input_buf - a function buffers chained commands
  * @info: parameter 1
  * @buf: parameter 2
  * @len: parameter 3
- * Return: bytes read.
+ * Return: bytes read
  */
 ssize_t input_buf(info_t *info, char **buf, size_t *len)
 {
@@ -42,9 +42,9 @@ ssize_t input_buf(info_t *info, char **buf, size_t *len)
 }
 
 /**
- * get_input - a function that gets a line minus the newline.
+ * get_input - a function that gets a line minus the newline
  * @info: function parameter
- * Return: bytes read.
+ * Return: bytes read
  */
 ssize_t get_input(info_t *info)
 {
@@ -86,11 +86,11 @@ ssize_t get_input(info_t *info)
 }
 
 /**
- * read_buf - a function that reads a buffer.
+ * read_buf - a function reads a buffer
  * @info: parameter 1
  * @buf: parameter 2
  * @i: parameter 3
- * Return: r
+ * Return: s
  */
 ssize_t read_buf(info_t *info, char *buf, size_t *i)
 {
@@ -105,16 +105,16 @@ ssize_t read_buf(info_t *info, char *buf, size_t *i)
 }
 
 /**
- * _getline - gets the next line of input from the STDIN.
+ * _getline - a function that gets the next line of input from STDIN
  * @info: parameter 1
  * @ptr: parameter 2
  * @length: parameter 3
- * Return: s
+ * Return: integer
  */
 int _getline(info_t *info, char **ptr, size_t *length)
 {
 	static char buf[READ_BUF_SIZE];
-	static size_t i, len;
+	static size_t x, len;
 	size_t k;
 	ssize_t r = 0, s = 0;
 	char *p = NULL, *new_p = NULL, *c;
@@ -122,26 +122,26 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	p = *ptr;
 	if (p && length)
 		s = *length;
-	if (i == len)
-		i = len = 0;
+	if (x == len)
+		x = len = 0;
 
 	r = read_buf(info, buf, &len);
 	if (r == -1 || (r == 0 && len == 0))
 		return (-1);
 
-	c = _strchr(buf + i, '\n');
+	c = _strchr(buf + x, '\n');
 	k = c ? 1 + (unsigned int)(c - buf) : len;
 	new_p = _realloc(p, s, s ? s + k : k + 1);
 	if (!new_p)
 		return (p ? free(p), -1 : -1);
 
 	if (s)
-		_strncat(new_p, buf + i, k - i);
+		_strncat(new_p, buf + x, k - x);
 	else
-		_strncpy(new_p, buf + i, k - i + 1);
+		_strncpy(new_p, buf + x, k - x + 1);
 
-	s += k - i;
-	i = k;
+	s += k - x;
+	x = k;
 	p = new_p;
 
 	if (length)
@@ -151,9 +151,8 @@ int _getline(info_t *info, char **ptr, size_t *length)
 }
 
 /**
- * sigintHandler - a function blocks ctrl-C.
- * @sig_num: function parameter 
- * Return: void.
+ * sigintHandler - a function that blocks ctrl-C
+ * @sig_num: function parameter
  */
 void sigintHandler(__attribute__((unused))int sig_num)
 {
@@ -161,3 +160,4 @@ void sigintHandler(__attribute__((unused))int sig_num)
 	_puts("$ ");
 	_putchar(BUF_FLUSH);
 }
+
