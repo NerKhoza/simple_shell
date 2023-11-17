@@ -1,13 +1,11 @@
 #include "shell.h"
 
 /**
-<<<<<<< HEAD
  * main - main function
  * @ac: parameter 1
  * @av: parameter 2
  * Return: 0 and 1
  */
- 
 int main(int ac, char **av)
 {
 	info_t info[] = { INFO_INIT };
