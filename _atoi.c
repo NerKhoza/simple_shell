@@ -1,8 +1,8 @@
 #include "shell.h"
 
 /**
- * interactive - a function that returns true 
- * 		if shell is interactive mode
+ * interactive - a function that returns true
+ * if shell is interactive mode
  * @info: function parameter
  * Return: 1 or 0
  */
@@ -15,7 +15,7 @@ int interactive(info_t *info)
  * is_delim - a function that checks if character is a delimeter
  * @c: parameter 1
  * @delim: parameter 2
- * Return: 1, 0 
+ * Return: 1, 0
  */
 int is_delim(char c, char *delim)
 {
