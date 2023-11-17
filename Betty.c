@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 /**
- * main - main function It prints "Hello, Betty!" 
+ * main - main function to print "Hello, Betty!" 
  * to the standard output
  * Return: 0 on Success
  */
