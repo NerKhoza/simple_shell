@@ -45,14 +45,14 @@ int is_chain(info_t *info, char *buf, size_t *p)
 
 void check_chain(info_t *info, char *buf, size_t *p, size_t i, size_t len)
 {
-	size_t f = *p;
+	size_t j = *p;
 
 	if (info->cmd_buf_type == CMD_AND)
 	{
 		if (info->status)
 		{
 			buf[i] = 0;
-			f = len;
+			j = len;
 		}
 	}
 	if (info->cmd_buf_type == CMD_OR)
@@ -60,9 +60,11 @@ void check_chain(info_t *info, char *buf, size_t *p, size_t i, size_t len)
 		if (!info->status)
 		{
 			buf[i] = 0;
-			f = len;
+			j = len;
 		}
 	}
+
+	*p = j;
 }
 
 /**
