@@ -12,6 +12,17 @@
 #include <fcntl.h>
 #include <errno.h>
 
+// errors.h
+#ifndef ERRORS_H
+#define ERRORS_H
+
+void _eputs(char *str);
+int _eputchar(char c);
+int _putfd(char c, int fd);
+int _putsfd(char *str, int fd);
+
+#endif // ERRORS_H
+
 /* for read/write buffers */
 #define READ_BUF_SIZE 1024
 #define WRITE_BUF_SIZE 1024
