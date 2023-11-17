@@ -52,7 +52,7 @@ int _putfd(char c, int fd)
 	if (c == BUF_FLUSH || x >= WRITE_BUF_SIZE)
 	{
 		write(fd, buf, x);
-		i = 0;
+		x = 0;
 	}
 	if (c != BUF_FLUSH)
 		buf[x++] = c;
