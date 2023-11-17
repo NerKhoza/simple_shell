@@ -1,6 +1,7 @@
 #include "shell.h"
 
 /**
+<<<<<<< HEAD
  * _erratoi - a function that converts a string to an integer
  * @s: function parameter
  * Return: 0 or 1
@@ -18,6 +19,26 @@ int _erratoi(char *s)
 		{
 			result *= 10;
 			result += (s[x] - '0');
+=======
+ * _erratoi - converts a string to an integer.
+ * @s: the string to be converted.
+ * Return: 0 if no numbers in string, converted number otherwise.
+ * -1 on error
+ */
+int _erratoi(char *s)
+{
+	int i = 0;
+	unsigned long int result = 0;
+
+	if (*s == '+')
+		s++;  /* TODO: why does this make main return 255? */
+	for (i = 0;  s[i] != '\0'; i++)
+	{
+		if (s[i] >= '0' && s[i] <= '9')
+		{
+			result *= 10;
+			result += (s[i] - '0');
+>>>>>>> origin/master
 			if (result > INT_MAX)
 				return (-1);
 		}
@@ -28,10 +49,18 @@ int _erratoi(char *s)
 }
 
 /**
+<<<<<<< HEAD
  * print_error - a function prints an error message
  * @info: parameter 1
  * @estr: parameter 2
  * Return: 0 or -1
+=======
+ * print_error - prints an error message.
+ * @info: the parameter & return info struct.
+ * @estr: string containing specified error type.
+ * Return: 0 if no numbers in string, converted number otherwise.
+ * -1 on error.
+>>>>>>> origin/master
  */
 void print_error(info_t *info, char *estr)
 {
@@ -45,15 +74,27 @@ void print_error(info_t *info, char *estr)
 }
 
 /**
+<<<<<<< HEAD
  * print_d - function prints a decimal (integer) number (base 10)
  * @input: parameter 1
  * @fd: parameter 2
  * Return: integer
+=======
+ * print_d - function prints a decimal (integer) number (base 10).
+ * @input: the input.
+ * @fd: the filedescriptor to write to.
+ *
+ * Return: number of characters printed.
+>>>>>>> origin/master
  */
 int print_d(int input, int fd)
 {
 	int (*__putchar)(char) = _putchar;
+<<<<<<< HEAD
 	int x, count = 0;
+=======
+	int i, count = 0;
+>>>>>>> origin/master
 	unsigned int _abs_, current;
 
 	if (fd == STDERR_FILENO)
@@ -67,6 +108,7 @@ int print_d(int input, int fd)
 	else
 		_abs_ = input;
 	current = _abs_;
+<<<<<<< HEAD
 	for (x = 1000000000; x > 1; x /= 10)
 	{
 		if (_abs_ / x)
@@ -75,6 +117,16 @@ int print_d(int input, int fd)
 			count++;
 		}
 		current %= x;
+=======
+	for (i = 1000000000; i > 1; i /= 10)
+	{
+		if (_abs_ / i)
+		{
+			__putchar('0' + current / i);
+			count++;
+		}
+		current %= i;
+>>>>>>> origin/master
 	}
 	__putchar('0' + current);
 	count++;
@@ -83,11 +135,20 @@ int print_d(int input, int fd)
 }
 
 /**
+<<<<<<< HEAD
  * convert_number - converter function, a clone of itoa
  * @num: parameter 1
  * @base: parameter 2
  * @flags: parameter 3
  * Return: string
+=======
+ * convert_number - converter function, a clone of itoa.
+ * @num: number.
+ * @base: base.
+ * @flags: argument flags.
+ *
+ * Return: string.
+>>>>>>> origin/master
  */
 char *convert_number(long int num, int base, int flags)
 {
@@ -95,11 +156,19 @@ char *convert_number(long int num, int base, int flags)
 	static char buffer[50];
 	char sign = 0;
 	char *ptr;
+<<<<<<< HEAD
 	unsigned long m = num;
 
 	if (!(flags & CONVERT_UNSIGNED) && num < 0)
 	{
 		m = -num;
+=======
+	unsigned long n = num;
+
+	if (!(flags & CONVERT_UNSIGNED) && num < 0)
+	{
+		n = -num;
+>>>>>>> origin/master
 		sign = '-';
 
 	}
@@ -108,9 +177,15 @@ char *convert_number(long int num, int base, int flags)
 	*ptr = '\0';
 
 	do	{
+<<<<<<< HEAD
 		*--ptr = array[m % base];
 		m /= base;
 	} while (m != 0);
+=======
+		*--ptr = array[n % base];
+		n /= base;
+	} while (n != 0);
+>>>>>>> origin/master
 
 	if (sign)
 		*--ptr = sign;
@@ -119,6 +194,7 @@ char *convert_number(long int num, int base, int flags)
 
 /**
  * remove_comments - function replaces first instance of '#' with '\0'
+<<<<<<< HEAD
  * @buf: function parameter
  * Return: 0
  */
@@ -130,6 +206,20 @@ void remove_comments(char *buf)
 		if (buf[x] == '#' && (!x || buf[x - 1] == ' '))
 		{
 			buf[x] = '\0';
+=======
+ * @buf: address of the string to be modified.
+ *
+ * Return: Always 0;
+ */
+void remove_comments(char *buf)
+{
+	int i;
+
+	for (i = 0; buf[i] != '\0'; i++)
+		if (buf[i] == '#' && (!i || buf[i - 1] == ' '))
+		{
+			buf[i] = '\0';
+>>>>>>> origin/master
 			break;
 		}
 }
